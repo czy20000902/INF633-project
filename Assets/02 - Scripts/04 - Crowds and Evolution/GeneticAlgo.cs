@@ -15,14 +15,20 @@ public class GeneticAlgo : MonoBehaviour
     public float vegetationGrowthRate = 1.0f;
     public float currentGrowth;
 
-    private List<GameObject> animals;
+    protected List<GameObject> animals;
     protected Terrain terrain;
     protected CustomTerrain customTerrain;
     protected float width;
     protected float height;
 
+    private long animalID;
+
+    public int maxAnimalSize = 500;
+
     void Start()
     {
+        animalID = 0;
+
         // Retrieve terrain.
         terrain = Terrain.activeTerrain;
         customTerrain = GetComponent<CustomTerrain>();
@@ -80,9 +86,14 @@ public class GeneticAlgo : MonoBehaviour
     public GameObject makeAnimal(Vector3 position)
     {
         GameObject animal = Instantiate(animalPrefab, transform);
+        long newAnimalID = animalID++;
+        animal.name = animalPrefab.name + "_" + newAnimalID;
+        animal.GetComponent<Animal>().id = newAnimalID;
         animal.GetComponent<Animal>().Setup(customTerrain, this);
         animal.transform.position = position;
         animal.transform.Rotate(0.0f, UnityEngine.Random.value * 360.0f, 0.0f);
+        Responder responder = animal.GetComponent<Responder>();
+        responder?.Init();
         return animal;
     }
 
@@ -105,6 +116,8 @@ public class GeneticAlgo : MonoBehaviour
     /// <param name="parent"></param>
     public void addOffspring(Animal parent)
     {
+        if (animals.Count >= maxAnimalSize)
+            return;
         GameObject animal = makeAnimal(parent.transform.position);
         animal.GetComponent<Animal>().InheritBrain(parent.GetBrain(), true);
         animals.Add(animal);

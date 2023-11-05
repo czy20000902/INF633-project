@@ -66,14 +66,16 @@ public class QuadrupedProceduralMotion : MonoBehaviour
 
     // Update is called every frame, if the MonoBehaviour is enabled.
     private void Update()
-    {        
-        RootMotion();
+    {
+        if (goal != null)
+            RootMotion();
     }
 
     // LateUpdate is called after all Update functions have been called.
     private void LateUpdate()
     {
-        TrackHead();
+        if (goal != null)
+            TrackHead();
         TailUpdate();
         RootAdaptation();
     }
@@ -149,36 +151,43 @@ public class QuadrupedProceduralMotion : MonoBehaviour
     private void RootAdaptation()
     {
         // Origin of the ray.
+        bool isHit = false;
+        bool condition = false;
         Vector3 raycastOrigin = groundChecker.position;
-
-        // The ray information gives you where you hit and the normal of the terrain in that location.
-        if (Physics.Raycast(raycastOrigin, -transform.up, out RaycastHit hit, Mathf.Infinity))
+        RaycastHit[] hitInfos = Physics.RaycastAll(raycastOrigin, Vector3.down, Mathf.Infinity);
+        if (hitInfos.Length > 0)
         {
-            if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Ground"))
+            for (int i = 0; i < hitInfos.Length; i++)
             {
-                posHit = hit.point;
-                distanceHit = hit.distance;
-                normalTerrain = hit.normal;
+                if (hitInfos[i].transform.CompareTag("Ground") || hitInfos[i].transform.gameObject.layer == LayerMask.NameToLayer("Ground"))
+                {
+                    posHit = hitInfos[i].point;
+                    distanceHit = hitInfos[i].distance;
+                    normalTerrain = hitInfos[i].normal;
+                    isHit = true;
+                    condition = Mathf.Abs(constantHipsPosition.y + posHit.y - hips.position.y) <= 10; // pyuan- advoid body(hips) climb on the top of "trees"
+                    break;
+                }
             }
         }
 
         /*
-         * In this layer, we need to refine the position and rotation of the hips based on the ground. Without this part, the animal would not lift its root body when walking on high terrains.
+         * In this layer, we need to refine the position and rotation of the hips based on the ground.
+         * Without this part, the animal would not lift its root body when walking on high terrains.
          * First, try to use the hit information to modify hips.position and move it up when you are in a higher ground.
-         * Then, use also this information (normalTerrain) to rotate the root body and place it parallel to the ground. You can use Quaternion.FromToRotation() for that.
-         * When you have the angle that you want to have in your root body, you can place it directly, or use some interpolation technique to go smoothly to that value, in order to have less drastical movements.
+         * Then, use also this information (normalTerrain) to rotate the root body and place it parallel to the ground. 
+         * You can use Quaternion.FromToRotation() for that.
+         * When you have the angle that you want to have in your root body, you can place it directly, 
+         * or use some interpolation technique to go smoothly to that value, in order to have less drastical movements.
          */
 
         // START TODO ###################
 
-        // hips.position = ...
-        // hips.rotation = ...
-
-        bool isHit = Mathf.Abs(constantHipsPosition.y + posHit.y - hips.position.y) <= 10; // Avoid body (hips) climbing on top of "trees"
-        if (isHit)
-        {
+        if (isHit && condition)
             hips.position = new Vector3(hips.position.x, constantHipsPosition.y + posHit.y, hips.position.z);
-        }
+
+        //hips.rotation *= Quaternion.FromToRotation(hips.rotation * Vector3.up, normalTerrain);
+
         // END TODO ###################
     }
 
@@ -233,20 +242,21 @@ public class QuadrupedProceduralMotion : MonoBehaviour
          * First, we need to get goalWorldLookDir: the position of the goal with respect to the head transform (you can use Debug.DrawRay() to debug it).
          * Use InverseTransformDirection() and headbone.parent to transform it with respect to the parent of the head (goalLocalLookDir).
          * Use RotateTowards() to have Vector3.forward always looking to goalLocalLookDir.
-         * Finally, define targetLocalRotation: The target local angle for your head. The forward axis (along the bone) will need to point to the object. To do this, you can use Quaternion.LookRotation().
+         * Finally, define targetLocalRotation: The target local angle for your head. The forward axis (along the bone) will need to point to the object. 
+         * To do this, you can use Quaternion.LookRotation().
          */
 
         // START TODO ###################
 
-        // goalWorldLookDir = ...
-        // goalLocalLookDir = ...
+        goalWorldLookDir = Vector3.Normalize(goal.position - headBone.position);
 
-        goalWorldLookDir = goal.position - headBone.position;
+        Debug.DrawLine(headBone.position, goal.position, Color.red);
+
         goalLocalLookDir = headBone.parent.InverseTransformDirection(goalWorldLookDir);
-        
-        Vector3 forward = Vector3.RotateTowards(Vector3.forward, goalLocalLookDir, 1.0f, 0.0f);
 
-        Quaternion targetLocalRotation = Quaternion.LookRotation(forward, Vector3.up); // Change!
+        var newDir = Vector3.RotateTowards(Vector3.forward, goalLocalLookDir, 0f, 0f);
+
+        Quaternion targetLocalRotation = Quaternion.LookRotation(newDir);
 
         // END TODO ###################
 

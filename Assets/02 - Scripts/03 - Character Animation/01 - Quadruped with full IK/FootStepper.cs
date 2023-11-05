@@ -1,9 +1,15 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class FootStepper : MonoBehaviour
 {
+    [Header("Lifting Settings")]
+    public bool isUsinglifting = false;
+    [Range(0, 1)]
+    public float liftingHeight;
+    public float midPointRatio = 0.5f;
+
     [Header("Stepper Settings")]
     public Transform homeTransform; // The position and rotation from which we want to stay in range (represented as the blue chip).
     public float distanceThreshold = 0.4f; // If we exceed this distance threshold, we come back to the home position.
@@ -19,11 +25,21 @@ public class FootStepper : MonoBehaviour
     // Flag to define when a leg is moving.
     public bool Moving;
 
+    public Transform owner;
     // Awake is called when the script instance is being loaded.
     void Awake()
     {
         // We put the steppers at the top of the hierarchy, to avoid other influences from the parent transforms and to see them better.
-        transform.SetParent(null);
+
+        Animal animal = null;
+        if (owner == null)
+            transform.SetParent(null);
+        else
+        {
+            owner.TryGetComponent<Animal>(out animal);
+            if (animal == null || !animal.enabled)
+                transform.SetParent(null);
+        }
 
         // Adapt the legs just after starting the script.
         MoveLeg();
@@ -41,21 +57,19 @@ public class FootStepper : MonoBehaviour
         }
 
         /*
-         * First, we want to calculate the distance from the GameObject where this script is attached (target, red sphere) to the home position of the respective leg (blue chip).
+         * First, we want to calculate the distance from the GameObject where this script is attached (target, red sphere)
+         * to the home position of the respective leg (blue chip).
          * We also calculate the quaternion between the current rotation and the home rotation.
          * If such distance is larger than the threshold step, OR the angle difference is larger than the angle threshold, we call the coroutine to move the leg.
          */
 
         // START TODO ###################
 
-        // float distFromHome = ...
-        // float angleFromHome = ...
-
         float distFromHome = (transform.position - homeTransform.position).magnitude;
         float angleFromHome = Quaternion.Angle(transform.rotation, homeTransform.rotation);
 
         // Change condition!
-        if  (distFromHome > distanceThreshold || angleFromHome > angleThreshold)
+        if (distFromHome > distanceThreshold || angleFromHome > angleThreshold)
         {
             // END TODO ###################
 
@@ -106,28 +120,39 @@ public class FootStepper : MonoBehaviour
 
         // START TODO ###################
 
-        // Vector3 raycastOrigin = ...
+        endPos = Vector3.zero;
+        endNormal = Vector3.zero;
 
-        // if (Physics.Raycast(...))
-        // {
-        //  ...
-        //  return true;
-        // }
-
-        float movementHeight = 2.0f;
-        Vector3 raycastOrigin = homeTransform.position + overshootVector + Vector3.up * heightOffset * movementHeight;
-        bool collision = Physics.Raycast(raycastOrigin, Vector3.down, out RaycastHit hit, Mathf.Infinity, groundRaycastMask);
-        if (collision)
+        bool isHit = false;
+        Vector3 raycastOrigin = homeTransform.position + Vector3.up * heightOffset;
+        RaycastHit[] hitInfos = Physics.RaycastAll(raycastOrigin, Vector3.down, Mathf.Infinity);
+        if (hitInfos.Length > 0)
         {
-            endPos = hit.point;
-            endNormal = hit.normal;
-            return true;
+            for(int i = 0; i < hitInfos.Length; i++)
+            {
+                if(hitInfos[i].transform.CompareTag("Ground") || hitInfos[i].transform.gameObject.layer == LayerMask.NameToLayer("Ground"))
+                {
+                    //endPos = new Vector3(hitInfos[i].point.x, endPos.y, hitInfos[i].point.z);
+                    endPos = hitInfos[i].point;
+                    endNormal = hitInfos[i].normal;
+                    isHit = true;
+                    break;
+                }
+            }
         }
         // END TODO ###################
 
-        endPos = Vector3.zero;
-        endNormal = Vector3.zero;
-        return false;
+        
+        return isHit;
+    }
+
+    Vector3 QuadraticBezierLerp(Vector3 P0, Vector3 P1, Vector3 P2, float t)
+    {
+        if (t <= 0)
+            return P0;
+        else if (t >= 1)
+            return P2;
+        return Mathf.Pow(1 - t, 2) * P0 + 2 * (1 - t) * t * P1 + t * t * P2;
     }
 
     /// <summary>
@@ -153,6 +178,10 @@ public class FootStepper : MonoBehaviour
         // Initialize the time.
         float timeElapsed = 0;
 
+        Vector3 offset = endPos - startPos;
+        float offsetLen = offset.magnitude;
+        Vector3 midPos = startPos + offset.normalized * offsetLen * midPointRatio + Vector3.up * liftingHeight;
+        
         do
         {
             /*
@@ -167,19 +196,27 @@ public class FootStepper : MonoBehaviour
             normalizedTime = Easing.EaseInOutCubic(normalizedTime);
 
             /*
-             * We know startPos and endPos. We could interpolate directly from the starting point to the end point, but we have a problem: The movement would be straight and flat on the terrain. Try it out!
+             * We know startPos and endPos. We could interpolate directly from the starting point to the end point, but we have a problem:
+             * The movement would be straight and flat on the terrain. Try it out!
              * transform.position = Vector3.Lerp(startPoint, endPoint, normalizedTime);
              * We need to find a way to guide the foot from the ground to a lifted position, and then put it back on the ground. 
              * Any idea? Just a tip: https://en.wikipedia.org/wiki/B%C3%A9zier_curve#Constructing_B.C3.A9zier_curves
              */
 
             // START TODO ###################
+            if (!isUsinglifting)
+                transform.position = Vector3.Lerp(startPos, endPos, normalizedTime);
+            else
+            {
+                // A quadratic Bézier curve is the path traced by the function B(t), given points P0, P1, and P2:
+                // B(t) = (1 - t)[(1 - t)P0 + tP1] + t[(1 - t)P1 + tP2], where t is in [0,1]
+                // B(t) = Σtᶦ*(1-t)²⁻ᶦ*Pᵢ, where i is the value from [0,1,2]. t is in [0,1]
+                //float t = timeElapsed / moveTime; //test
+                // controlled by users
+                //Debug.Log("start: " + startPos.y + ", mid: " + midPos.y + ", endPos: " + endPos.y);
+                transform.position = QuadraticBezierLerp(startPos, midPos, endPos, normalizedTime);
+            }
 
-            // transform.position = ...
-
-            Vector3 liftedPos = startPos + (endPos - startPos) * 0.5f + Vector3.up * heightOffset;
-            transform.position = (1 - normalizedTime) * (1 - normalizedTime) * startPos + 2 * (1 - normalizedTime) * normalizedTime * liftedPos + normalizedTime * normalizedTime * endPos;
-            
 
             // END TODO ###################
 
@@ -189,7 +226,6 @@ public class FootStepper : MonoBehaviour
 
             // START TODO ###################
 
-            // transform.rotation = ...
             transform.rotation = Quaternion.Lerp(startRot, endRot, normalizedTime);
 
             // END TODO ###################

@@ -37,6 +37,8 @@ public class CustomTerrain : MonoBehaviour {
 
     [SerializeField] Camera cam;
 
+    private bool changed = false;
+
     // Initialization
     void Start () {
         if (!terrain)
@@ -91,11 +93,16 @@ public class CustomTerrain : MonoBehaviour {
                 do_draw_target = true;
             if (Input.GetMouseButton(0)) {
                 debug.text = "Coords: " + hit_loc.ToString();
-                if (current_brush)
-                    current_brush.callDraw(hit_loc.x, hit_loc.z);
+                current_brush?.callDraw(hit_loc.x, hit_loc.z);
             }
         }
         drawTarget(hit_loc, do_draw_target);
+
+        if (changed)
+        {
+            changed = false;
+            saveDetails();// pyuan- maybe an issue of performance
+        }
     }
 
     // Draw the brush marker on the terrain
@@ -201,9 +208,16 @@ public class CustomTerrain : MonoBehaviour {
     }
 
     // Get dimensions of the heightmap grid
-    public Vector3 gridSize() {
+    public Vector3 gridSize()
+    {
         return new Vector3(heightmap_width, 0.0f, heightmap_height);
     }
+
+    public Vector2Int gridSizeInt()
+    {
+        return new Vector2Int(heightmap_width, heightmap_height);
+    }
+
     // Get real dimensions of the terrain (world space)
     public Vector3 terrainSize() {
         return terrain_size;
@@ -276,5 +290,30 @@ public class CustomTerrain : MonoBehaviour {
     }
     public Brush getBrush() {
         return current_brush;
+    }
+
+    public void RemoveTreeInstance(float x, float z, float radius)
+    {
+        Vector2 center = new Vector2(x, z);
+        float threshold = radius * radius;
+        List<TreeInstance> newTrees = new List<TreeInstance>();
+        for (int i = 0; i < terrain_data.treeInstanceCount; i++)
+        {
+            var tree = terrain_data.treeInstances[i];
+            Vector2 pos2d = new Vector2(tree.position.x * heightmap_width, tree.position.z * heightmap_height);
+            if ((pos2d - center).sqrMagnitude <= threshold)
+            {
+                //delete
+                continue;
+            }
+            newTrees.Add(tree);
+        }
+        terrain_data.treeInstances = newTrees.ToArray();
+    }
+
+    public void UpdateDetail(int x, int y, int val)
+    {
+        detail_layer[x, y] = val;
+        changed = true;
     }
 }

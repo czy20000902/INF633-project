@@ -698,10 +698,6 @@ GameObject:
   - component: {fileID: 374040431}
   - component: {fileID: 374040435}
   - component: {fileID: 374040440}
-  - component: {fileID: 374040441}
-  - component: {fileID: 374040443}
-  - component: {fileID: 374040442}
-  - component: {fileID: 374040444}
   m_Layer: 0
   m_Name: Terrain
   m_TagString: Ground
@@ -794,7 +790,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 374040426}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2643ceb104fd84476b2e72abc99d2963, type: 3}
   m_Name: 
@@ -807,7 +803,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 374040426}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 75a784b2bfbd9436ababbfa7c8e8805a, type: 3}
   m_Name: 
@@ -819,7 +815,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 374040426}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 58addec6626ef40dfb932e8efbbb6236, type: 3}
   m_Name: 
@@ -828,61 +824,6 @@ MonoBehaviour:
   animalPrefab: {fileID: 223894165}
   vegetationGrowthRate: 1
   currentGrowth: 0
---- !u!114 &374040441
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 374040426}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1615de4fb60f7a446976ca4ea0eb5d52, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  clearHeight: 0
-  radius: 20
---- !u!114 &374040442
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 374040426}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f0013058f1f9e64487d737eb102dc02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  decrement: 1
-  radius: 20
---- !u!114 &374040443
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 374040426}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b4283f76372bd0a439eca64c8da949f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  increment: 1
-  radius: 20
---- !u!114 &374040444
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 374040426}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 65457e49552340942aed2714dada893f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mindistance: 10
 --- !u!1 &534669902
 GameObject:
   m_ObjectHideFlags: 0
@@ -1593,7 +1534,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1525859051}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 269.88, y: 1.6546326, z: 52.19}
+  m_LocalPosition: {x: 269.88, y: 1.66, z: 52.19}
   m_LocalScale: {x: 0.56965, y: 0.56965, z: 0.56965}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2350,6 +2291,66 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1688669856}
     m_Modifications:
+    - target: {fileID: 2954251902850376964, guid: 292e0cc1c13240549bc0ea73726cca30,
+        type: 3}
+      propertyPath: liftingHeight
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2954251902850376964, guid: 292e0cc1c13240549bc0ea73726cca30,
+        type: 3}
+      propertyPath: isUsinglifting
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2954251902890950202, guid: 292e0cc1c13240549bc0ea73726cca30,
+        type: 3}
+      propertyPath: liftingHeight
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2954251902890950202, guid: 292e0cc1c13240549bc0ea73726cca30,
+        type: 3}
+      propertyPath: isUsinglifting
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2954251903069469998, guid: 292e0cc1c13240549bc0ea73726cca30,
+        type: 3}
+      propertyPath: liftingHeight
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2954251903069469998, guid: 292e0cc1c13240549bc0ea73726cca30,
+        type: 3}
+      propertyPath: isUsinglifting
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2954251903643962278, guid: 292e0cc1c13240549bc0ea73726cca30,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 1.55
+      objectReference: {fileID: 0}
+    - target: {fileID: 2954251903643962278, guid: 292e0cc1c13240549bc0ea73726cca30,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.76
+      objectReference: {fileID: 0}
+    - target: {fileID: 2954251903643962278, guid: 292e0cc1c13240549bc0ea73726cca30,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 2.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 2954251904603069286, guid: 292e0cc1c13240549bc0ea73726cca30,
+        type: 3}
+      propertyPath: liftingHeight
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2954251904603069286, guid: 292e0cc1c13240549bc0ea73726cca30,
+        type: 3}
+      propertyPath: isUsinglifting
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8107060311548940690, guid: 292e0cc1c13240549bc0ea73726cca30,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8107060311548940698, guid: 292e0cc1c13240549bc0ea73726cca30,
         type: 3}
       propertyPath: m_Name
@@ -2360,6 +2361,16 @@ PrefabInstance:
       propertyPath: goal
       value: 
       objectReference: {fileID: 1525859055}
+    - target: {fileID: 8107060311548940700, guid: 292e0cc1c13240549bc0ea73726cca30,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8107060311548940780, guid: 292e0cc1c13240549bc0ea73726cca30,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8107060311549103610, guid: 292e0cc1c13240549bc0ea73726cca30,
         type: 3}
       propertyPath: m_RootOrder

@@ -84,9 +84,6 @@ public class FabricIKQuadruped : MonoBehaviour
 
             // START TODO ###################
 
-            // Just a placeholder. Change with the correct transform!
-            // bones[i] = transform.parent;
-
             bones[i] = current;
             startingBoneRotation[i] = current.rotation;
 
@@ -110,10 +107,9 @@ public class FabricIKQuadruped : MonoBehaviour
             {
                 // START TODO ###################
 
-                // bonesLength[i] = ...
-                // completeLength += ...
-
+                // mid-bones
                 bonesLength[i] = (bones[i + 1].position - current.position).magnitude;
+                //leaf bones
                 completeLength += bonesLength[i];
 
                 // END TODO ###################
@@ -177,17 +173,16 @@ public class FabricIKQuadruped : MonoBehaviour
          */
 
         // START TODO ###################
-
         Vector3 point2Target = target.position - bones[0].position;
-
         // Change condition!
         if (point2Target.magnitude > completeLength)
         {
-            // bonesPositions[i] = ...
-
             Vector3 p2tDir = point2Target.normalized; // get the direction
+            // The updated root bone position (bonesPositions[0]) should not change => i=1
             for (int i = 1; i < bones.Length; i++)
             {
+                //The other bones positions will be equal to the position of the previous bone plus the direction to the target * length of the bone
+                // we  normalise because we need just the direction
                 bonesPositions[i] = bonesPositions[i - 1] + p2tDir * bonesLength[i - 1];
             }
 
@@ -243,19 +238,16 @@ public class FabricIKQuadruped : MonoBehaviour
 
                     // START TODO ###################
 
-                    // if...
-                    //     bonesPositions[i] = ...
-                    // else...
-                    //     bonesPositions[i] = ...
-
+                    // if the index belongs to the end-effector
                     if (i == bonesPositions.Length - 1)
                         bonesPositions[i] = target.position;
                     else
                     {
-                        Vector3 norm = (bonesPositions[i] - bonesPositions[i + 1]).normalized;
-                        bonesPositions[i] = bonesPositions[i + 1] + bonesLength[i] * norm;
+                        // inverse loop
+                        // newBonesPos_i = newBonesPos_(i+1) + bonesLen_i * normalized(oldBonesPos_i-newBonesPos_(i+1))
+                        Vector3 dir = (bonesPositions[i] - bonesPositions[i + 1]).normalized;
+                        bonesPositions[i] = bonesPositions[i + 1] + bonesLength[i] * dir;
                     }
-
 
                     // END TODO ###################
                 }
@@ -269,10 +261,8 @@ public class FabricIKQuadruped : MonoBehaviour
 
                     // START TODO ###################
 
-                    // bonesPositions[i] = ...
-
-                    Vector3 norm = (bonesPositions[i] - bonesPositions[i - 1]).normalized;
-                    bonesPositions[i] = bonesPositions[i - 1] + bonesLength[i - 1] * norm;
+                    Vector3 dir = (bonesPositions[i] - bonesPositions[i - 1]).normalized;
+                    bonesPositions[i] = bonesPositions[i - 1] + bonesLength[i - 1] * dir;
 
                     // END TODO ###################
 

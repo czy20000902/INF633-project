@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class VolumePreservingBrush : TerrainBrush
-{
+public class VolumePreservingBrush : TerrainBrush {
     public bool isRecord = true;
     private Dictionary<System.ValueTuple<int, int>, float> recordHeightData = new Dictionary<(int, int), float>();
     private int lastRadius = 0;
     private List<System.ValueTuple<int, int>> lastAreaInfo = new List<(int, int)>();
-    public override void draw(int x, int z)
-    {
+    public override void draw(int x, int z) {
         if (isRecord)
         {
             recordHeightData.Clear();
@@ -29,7 +27,7 @@ public class VolumePreservingBrush : TerrainBrush
         else
         {
             // first clear the last area, then move it to new area
-            foreach (var e in lastAreaInfo)
+            foreach(var e in lastAreaInfo)
             {
                 terrain.set(e.Item1, e.Item2, 0);
             }

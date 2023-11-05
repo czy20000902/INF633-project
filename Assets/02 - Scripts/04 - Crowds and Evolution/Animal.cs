@@ -12,7 +12,6 @@ public class Animal : MonoBehaviour
     public float mutateRate = 0.01f;
     public float swapStrength = 10.0f;
     public float mutateStrength = 0.5f;
-    public float maxAngle = 10.0f;
 
     [Header("Energy parameters")]
     public float maxEnergy = 10.0f;
@@ -26,7 +25,7 @@ public class Animal : MonoBehaviour
     public int nEyes = 5;
 
     private int[] networkStruct;
-    private SimpleNeuralNet brain = null;
+    private CustomNerualNet brain = null;
 
     // Terrain.
     private CustomTerrain terrain = null;
@@ -44,6 +43,11 @@ public class Animal : MonoBehaviour
     // Renderer.
     private Material mat = null;
 
+
+    [HideInInspector]
+    public long id;
+    private Responder responder;
+
     void Start()
     {
         // Network: 1 input per receptor, 1 output per actuator.
@@ -57,13 +61,16 @@ public class Animal : MonoBehaviour
         MeshRenderer renderer = GetComponentInChildren<MeshRenderer>();
         if (renderer != null)
             mat = renderer.material;
+
+        responder = transform.GetComponent<Responder>();
     }
+
 
     void Update()
     {
         // In case something is not initialized...
         if (brain == null)
-            brain = new SimpleNeuralNet(networkStruct);
+            brain = new CustomNerualNet(networkStruct);
         if (terrain == null)
             return;
         if (details == null)
@@ -71,6 +78,8 @@ public class Animal : MonoBehaviour
             UpdateSetup();
             return;
         }
+        UpdateSetup(); // make sure the newest data
+
 
         // Retrieve animal location in the heighmap
         int dx = (int)((tfm.position.x / terrainSize.x) * detailSize.x);
@@ -84,18 +93,25 @@ public class Animal : MonoBehaviour
         {
             // Eat (remove) the grass and gain energy.
             details[dy, dx] = 0;
+            terrain.UpdateDetail(dy, dx, 0); // update grass of terrain
+
             energy += gainEnergy;
             if (energy > maxEnergy)
                 energy = maxEnergy;
 
             genetic_algo.addOffspring(this);
+            responder?.ResetRotatingAngle();
         }
 
         // If the energy is below 0, the animal dies.
         if (energy < 0)
         {
             energy = 0.0f;
-            genetic_algo.removeAnimal(this);
+            if (!responder.IsObserver())
+            {
+                genetic_algo.removeAnimal(this);
+                responder?.StopMoving();
+            }
         }
 
         // Update the color of the animal as a function of the energy that it contains.
@@ -109,8 +125,17 @@ public class Animal : MonoBehaviour
         float[] output = brain.getOutput(vision);
 
         // 3. Act using actuators.
-        float angle = (output[0] * 2.0f - 1.0f) * maxAngle;
-        tfm.Rotate(0.0f, angle, 0.0f);
+        // output[0] is [0,1] -> [-1,1]
+        float result = (output[0] * 2.0f - 1.0f);
+
+        if (responder != null)
+        {
+            if (!responder.IsMoving() && !responder.IsWaiting())
+            {
+                // pyuan do some reaction
+                responder.Reaction(result);
+            }
+        }
     }
 
     /// <summary>
@@ -169,13 +194,15 @@ public class Animal : MonoBehaviour
         details = terrain.getDetails();
     }
 
-    public void InheritBrain(SimpleNeuralNet other, bool mutate)
+    public void InheritBrain(CustomNerualNet other, bool mutate)
     {
-        brain = new SimpleNeuralNet(other);
+        brain = new CustomNerualNet(other);
         if (mutate)
-            brain.mutate(swapRate, mutateRate, swapStrength, mutateStrength);
+            brain.mutate();
+        //if (mutate)
+        //    brain.mutate(swapRate, mutateRate, swapStrength, mutateStrength);
     }
-    public SimpleNeuralNet GetBrain()
+    public CustomNerualNet GetBrain()
     {
         return brain;
     }
