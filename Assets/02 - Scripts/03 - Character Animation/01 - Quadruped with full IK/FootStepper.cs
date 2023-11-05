@@ -51,8 +51,11 @@ public class FootStepper : MonoBehaviour
         // float distFromHome = ...
         // float angleFromHome = ...
 
+        float distFromHome = (transform.position - homeTransform.position).magnitude;
+        float angleFromHome = Quaternion.Angle(transform.rotation, homeTransform.rotation);
+
         // Change condition!
-        if (false)
+        if  (distFromHome > distanceThreshold || angleFromHome > angleThreshold)
         {
             // END TODO ###################
 
@@ -111,6 +114,15 @@ public class FootStepper : MonoBehaviour
         //  return true;
         // }
 
+        float movementHeight = 2.0f;
+        Vector3 raycastOrigin = homeTransform.position + overshootVector + Vector3.up * heightOffset * movementHeight;
+        bool collision = Physics.Raycast(raycastOrigin, Vector3.down, out RaycastHit hit, Mathf.Infinity, groundRaycastMask);
+        if (collision)
+        {
+            endPos = hit.point;
+            endNormal = hit.normal;
+            return true;
+        }
         // END TODO ###################
 
         endPos = Vector3.zero;
@@ -165,6 +177,10 @@ public class FootStepper : MonoBehaviour
 
             // transform.position = ...
 
+            Vector3 liftedPos = startPos + (endPos - startPos) * 0.5f + Vector3.up * heightOffset;
+            transform.position = (1 - normalizedTime) * (1 - normalizedTime) * startPos + 2 * (1 - normalizedTime) * normalizedTime * liftedPos + normalizedTime * normalizedTime * endPos;
+            
+
             // END TODO ###################
 
             /*
@@ -174,6 +190,7 @@ public class FootStepper : MonoBehaviour
             // START TODO ###################
 
             // transform.rotation = ...
+            transform.rotation = Quaternion.Lerp(startRot, endRot, normalizedTime);
 
             // END TODO ###################
 

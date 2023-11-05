@@ -174,6 +174,11 @@ public class QuadrupedProceduralMotion : MonoBehaviour
         // hips.position = ...
         // hips.rotation = ...
 
+        bool isHit = Mathf.Abs(constantHipsPosition.y + posHit.y - hips.position.y) <= 10; // Avoid body (hips) climbing on top of "trees"
+        if (isHit)
+        {
+            hips.position = new Vector3(hips.position.x, constantHipsPosition.y + posHit.y, hips.position.z);
+        }
         // END TODO ###################
     }
 
@@ -236,7 +241,12 @@ public class QuadrupedProceduralMotion : MonoBehaviour
         // goalWorldLookDir = ...
         // goalLocalLookDir = ...
 
-        Quaternion targetLocalRotation = Quaternion.identity; // Change!
+        goalWorldLookDir = goal.position - headBone.position;
+        goalLocalLookDir = headBone.parent.InverseTransformDirection(goalWorldLookDir);
+        
+        Vector3 forward = Vector3.RotateTowards(Vector3.forward, goalLocalLookDir, 1.0f, 0.0f);
+
+        Quaternion targetLocalRotation = Quaternion.LookRotation(forward, Vector3.up); // Change!
 
         // END TODO ###################
 
