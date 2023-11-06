@@ -6,6 +6,10 @@ using UnityEngine.UI;
 
 public class Animal : MonoBehaviour
 {
+    // Specify the detection range for food.
+    [Header("Food Detection")]
+    public float foodDetectionRange = 5.0f; 
+
 
     [Header("Animal parameters")]
     public float swapRate = 0.01f;
