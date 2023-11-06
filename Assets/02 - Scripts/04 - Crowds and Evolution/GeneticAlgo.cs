@@ -28,7 +28,16 @@ public class GeneticAlgo : MonoBehaviour
     public float maxHeightForVegetation = 100.0f; // 草停止生成的高度
 
 
-   
+    public void InitializeAnimals()
+    {
+        animals = new List<GameObject>();
+        for (int i = 0; i < popSize; i++)
+        {
+            GameObject animal = makeAnimal();
+            animals.Add(animal);
+        }
+    }
+
 
     void Start()
     {
@@ -43,11 +52,7 @@ public class GeneticAlgo : MonoBehaviour
 
         // Initialize animals array.
         animals = new List<GameObject>();
-        for (int i = 0; i < popSize; i++)
-        {
-            GameObject animal = makeAnimal();
-            animals.Add(animal);
-        }
+        InitializeAnimals();
     }
 
     void Update()
