@@ -18,6 +18,9 @@ public class Animal : MonoBehaviour
     public float reproductionCooldown = 10.0f; // 繁殖冷却时间
     private float lastReproductionTime;
 
+    public Material maleMaterial; // 雄性的材质
+    public Material femaleMaterial; // 雌性的材质
+
 
     [Header("Animal parameters")]
     public float swapRate = 0.01f;
@@ -56,6 +59,16 @@ public class Animal : MonoBehaviour
     // Renderer.
     private Material mat = null;
 
+    // 设置动物的材质
+    private void SetMaterial(Material material)
+    {
+        MeshRenderer renderer = GetComponentInChildren<MeshRenderer>();
+        if (renderer != null)
+        {
+            renderer.material = material;
+        }
+    }
+
     void Start()
     {
         // Network: 1 input per receptor, 1 output per actuator.
@@ -72,6 +85,15 @@ public class Animal : MonoBehaviour
 
         // 随机性别
         gender = (UnityEngine.Random.value < 0.5f) ? Gender.Male : Gender.Female;
+
+        if (gender == Gender.Male)
+        {
+            SetMaterial(maleMaterial);
+        }
+        else
+        {
+            SetMaterial(femaleMaterial);
+        }
 
     }
 
