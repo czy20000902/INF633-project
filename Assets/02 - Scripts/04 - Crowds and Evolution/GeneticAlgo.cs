@@ -21,6 +21,11 @@ public class GeneticAlgo : MonoBehaviour
     protected float width;
     protected float height;
 
+    [Header("Vegetation parameters")]
+    public float maxVegetationProbability = 1.0f;
+    public float minVegetationProbability = 0.1f;
+    public float maxHeightForVegetation = 100.0f; // 草停止生成的高度
+
     void Start()
     {
         // Retrieve terrain.
@@ -48,7 +53,7 @@ public class GeneticAlgo : MonoBehaviour
         {
             animals.Add(makeAnimal());
         }
-        customTerrain.debug.text = "N� animals: " + animals.Count.ToString();
+        customTerrain.debug.text = "N� animals: " + animals.Count.ToString();
 
         // Update grass elements/food resources.
         updateResources();
@@ -62,11 +67,23 @@ public class GeneticAlgo : MonoBehaviour
         Vector2 detail_sz = customTerrain.detailSize();
         int[,] details = customTerrain.getDetails();
         currentGrowth += vegetationGrowthRate;
+
         while (currentGrowth > 1.0f)
         {
             int x = (int)(UnityEngine.Random.value * detail_sz.x);
             int y = (int)(UnityEngine.Random.value * detail_sz.y);
-            details[y, x] = 1;
+
+            // 获取当前位置的高度
+            float height = terrain.SampleHeight(new Vector3(x, 0, y));
+
+            // 计算生成概率，随着高度的增加而减小
+            float vegetationProbability = Mathf.Lerp(maxVegetationProbability, minVegetationProbability, height / maxHeightForVegetation);
+
+            if (UnityEngine.Random.value < vegetationProbability)
+            {
+                details[y, x] = 1;
+            }
+
             currentGrowth -= 1.0f;
         }
         customTerrain.saveDetails();
