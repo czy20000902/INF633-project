@@ -846,8 +846,8 @@ MonoBehaviour:
   reproductionEnergyThreshold: 20
   reproductionDistance: 5
   reproductionCooldown: 10
-  maleMaterial: {fileID: 2100000, guid: a88ff104274bc2846b613a6dfbad0804, type: 2}
-  femaleMaterial: {fileID: 2100000, guid: 74e2c390f6787a9439703e90e5e182af, type: 2}
+  maleMaterial: {fileID: 2100000, guid: 71958ee2b04abb34688537efeac2f157, type: 2}
+  femaleMaterial: {fileID: 2100000, guid: 1633e9530a3555b48ac5dfcb5431d9a2, type: 2}
   swapRate: 0.01
   mutateRate: 0.01
   swapStrength: 10
@@ -2166,7 +2166,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2137751596}
-  m_LocalRotation: {x: 0.09467271, y: 0.4793379, z: -0.052104156, w: 0.870952}
+  m_LocalRotation: {x: 0.09467273, y: 0.4793379, z: -0.05210416, w: 0.870952}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0

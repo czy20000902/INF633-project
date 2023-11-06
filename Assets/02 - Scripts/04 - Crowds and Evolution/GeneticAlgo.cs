@@ -55,7 +55,7 @@ public class GeneticAlgo : MonoBehaviour
         {
             animals.Add(makeAnimal());
         }
-        customTerrain.debug.text = "N� animals: " + animals.Count.ToString();
+        customTerrain.debug.text = "Number of animals: " + animals.Count.ToString();
 
         // Update grass elements/food resources.
         updateResources();
