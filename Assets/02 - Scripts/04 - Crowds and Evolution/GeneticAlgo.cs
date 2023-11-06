@@ -8,7 +8,7 @@ public class GeneticAlgo : MonoBehaviour
 {
 
     [Header("Genetic Algorithm parameters")]
-    public int popSize = 100;
+    public int popSize = 1000;
     public GameObject animalPrefab;
 
     [Header("Dynamic elements")]
