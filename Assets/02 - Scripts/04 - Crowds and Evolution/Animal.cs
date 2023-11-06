@@ -110,6 +110,15 @@ public class Animal : MonoBehaviour
         Animal newAnimalScript = newAnimal.GetComponent<Animal>();
         newAnimalScript.InheritBrain(newBrain, true);
         newAnimalScript.gender = newGender;
+
+        if (gender == Gender.Male)
+        {
+            SetMaterial(maleMaterial);
+        }
+        else
+        {
+            SetMaterial(femaleMaterial);
+        }
     }
 
     private void CheckReproduction()
