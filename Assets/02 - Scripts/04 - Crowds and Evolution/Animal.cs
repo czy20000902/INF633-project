@@ -10,6 +10,14 @@ public class Animal : MonoBehaviour
     [Header("Food Detection")]
     public float foodDetectionRange = 5.0f; 
 
+    public enum Gender { Male, Female }
+    public Gender gender;
+
+    public float reproductionEnergyThreshold = 20.0f; // 能量达到多少才能繁殖
+    public float reproductionDistance = 5.0f; // 雌雄相遇的最大距离
+    public float reproductionCooldown = 10.0f; // 繁殖冷却时间
+    private float lastReproductionTime;
+
 
     [Header("Animal parameters")]
     public float swapRate = 0.01f;
@@ -61,7 +69,46 @@ public class Animal : MonoBehaviour
         MeshRenderer renderer = GetComponentInChildren<MeshRenderer>();
         if (renderer != null)
             mat = renderer.material;
+
+        // 随机性别
+        gender = (UnityEngine.Random.value < 0.5f) ? Gender.Male : Gender.Female;
+
     }
+
+    private void ReproduceWith(Animal partner)
+    {
+        // 复制大脑
+        SimpleNeuralNet newBrain = new SimpleNeuralNet(GetBrain());
+
+        // 随机分配性别
+        Gender newGender = (UnityEngine.Random.value < 0.5f) ? Gender.Male : Gender.Female;
+
+        // 创建新的动物
+        GameObject newAnimal = genetic_algo.makeAnimal();
+        Animal newAnimalScript = newAnimal.GetComponent<Animal>();
+        newAnimalScript.InheritBrain(newBrain, true);
+        newAnimalScript.gender = newGender;
+    }
+
+    private void CheckReproduction()
+{
+    if (gender == Gender.Female && energy >= reproductionEnergyThreshold)
+    {
+        foreach (GameObject otherAnimal in genetic_algo.animals)
+        {
+            Animal other = otherAnimal.GetComponent<Animal>();
+            if (other != null && other != this && other.gender == Gender.Male &&
+                Vector3.Distance(transform.position, other.transform.position) <= reproductionDistance)
+            {
+                if (Time.time - lastReproductionTime >= reproductionCooldown)
+                {
+                    ReproduceWith(other);
+                    lastReproductionTime = Time.time;
+                }
+            }
+        }
+    }
+}
 
     void Update()
     {
@@ -101,6 +148,10 @@ public class Animal : MonoBehaviour
             energy = 0.0f;
             genetic_algo.removeAnimal(this);
         }
+
+        // Check for reproduction.
+        CheckReproduction();
+    
 
         // Update the color of the animal as a function of the energy that it contains.
         if (mat != null)
